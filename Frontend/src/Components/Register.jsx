@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../Utility/Api";
-import "../Components/Login.css";
+import "../Components/Register.css";
 
 export default function Register() {
   const [form, setForm] = useState({
