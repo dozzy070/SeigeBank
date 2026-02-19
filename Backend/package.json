@@ -1,0 +1,31 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "learning nodemella",
+  "keywords": [
+    "node",
+    "express",
+    "react"
+  ],
+  "license": "ISC",
+  "author": "kinghenry",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "axios": "^1.13.5",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.3.1",
+    "morgan": "^1.10.1",
+    "nodemailer": "^7.0.13",
+    "pg": "^8.18.0",
+    "pool": "^0.4.1",
+    "qs": "^6.14.1"
+  }
+}

@@ -1,0 +1,37 @@
+/* App Component Styling */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+}
+
+/* Main Content Area */
+main {
+  flex: 1;
+  padding: 0;
+  background: transparent;
+  overflow-y: auto;
+}
+
+/* Utilities for App Layout */
+.flex-grow-1 {
+  flex: 1;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .app-content {
+    flex-direction: column;
+  }
+
+  main {
+    padding: 12px;
+  }
+}
