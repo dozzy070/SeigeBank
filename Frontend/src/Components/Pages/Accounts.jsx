@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../Utility/Api';
 import AccountCard from '../AccountCard';
 import '../styles/Accounts.css';
 
@@ -27,8 +27,8 @@ export default function Accounts() {
         return;
       }
       
-      const response = await axios.get(
-        `http://localhost:5000/api/user/account?userId=${user.id}`
+      const response = await api.get(
+        `/user/account?userId=${user.id}`
       );
       console.log('Account response:', response.data);
       
@@ -57,8 +57,8 @@ export default function Accounts() {
     e.preventDefault();
     try {
       setSubmitting(true);
-      const response = await axios.post(
-        'http://localhost:5000/api/auth/create-account',
+      const response = await api.post(
+        '/auth/create-account',
         {
           userId: user.id,
           accountType: accountType,

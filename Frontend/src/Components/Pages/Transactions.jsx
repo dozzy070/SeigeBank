@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../Utility/Api';
 import '../styles/Transactions.css';
 
 export default function Transactions() {
@@ -16,8 +16,8 @@ export default function Transactions() {
 
   const fetchTransactions = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/user/activities?userId=${user.id}&limit=50`
+      const response = await api.get(
+        `/user/activities?userId=${user.id}&limit=50`
       );
       if (response.data.activities) {
         setTransactions(response.data.activities);

@@ -8,8 +8,14 @@ import userRoutes from "./routes/userRoutes.js";
 
 const app = express();
 
+// CORS Configuration using environment variables
+const corsOrigins = [
+  process.env.FRONTEND_URL_LOCAL || 'http://localhost:5173',
+  process.env.FRONTEND_URL_VERCEL || 'https://new-work-ecru-two.vercel.app'
+];
+
 // Middleware
-app.use(cors({ origin: ['http://localhost:5173' , 'https://new-work-ecru-two.vercel.app/'], credentials: true }));
+app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(express.json());
 
 // Auth routes
