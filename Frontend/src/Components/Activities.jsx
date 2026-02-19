@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../Utility/Api';
 import './styles/Activities.css';
 
 export default function Activities({ userId, accountId }) {
@@ -12,9 +12,7 @@ export default function Activities({ userId, accountId }) {
 
   const fetchActivities = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/user/activities?userId=${userId}&limit=10`
-      );
+      const response = await api.get(`/user/activities?userId=${userId}&limit=10`);
 
       if (response.data.activities) {
         setActivities(response.data.activities);

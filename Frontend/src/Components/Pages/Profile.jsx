@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../Utility/Api';
 import '../styles/Profile.css';
 
 export default function Profile() {
@@ -15,9 +15,7 @@ export default function Profile() {
 
   const fetchAccountInfo = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/user/account?userId=${user.id}`
-      );
+      const response = await api.get(`/user/account?userId=${user.id}`);
       if (response.data.account) {
         setAccount(response.data.account);
       }

@@ -151,15 +151,17 @@ export const loginUser = async (req, res) => {
     }
 
     // =========================
-    // Send login emails
+    // Send login emails asynchronously (do not block response)
     // =========================
-    await sendLoginEmail(user.email);
-    await sendLoginAlertEmail({
+    sendLoginEmail(user.email).catch((err) =>
+      console.error("sendLoginEmail error:", err)
+    );
+    sendLoginAlertEmail({
       to: user.email,
       location: req.ip || "Unknown location",
       device: req.headers["user-agent"] || "Unknown device",
       dateTime: new Date().toLocaleString(),
-    });
+    }).catch((err) => console.error("sendLoginAlertEmail error:", err));
 
     // =========================
     // Return user info
