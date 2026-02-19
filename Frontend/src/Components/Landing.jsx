@@ -114,8 +114,8 @@ export default function Landing() {
 
       {/* Bank Images */}
       <div className="view-images" aria-hidden>
-        <img src="/src/assets/seige card.png" className="bank-image img-1" alt="banking illustration 1" />
-        <img src="/src/assets/seige card2.jpg" className="bank-image img-2" alt="banking illustration 2" />
+        <img src="/assets/seige card.png" className="bank-image img-1" alt="banking illustration 1" />
+        <img src="/assets/seige card2.jpg" className="bank-image img-2" alt="banking illustration 2" />
       </div>
     </div>
   </div>

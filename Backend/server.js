@@ -11,7 +11,8 @@ const app = express();
 // CORS Configuration using environment variables
 const corsOrigins = [
   process.env.FRONTEND_URL_LOCAL || 'http://localhost:5173',
-  process.env.FRONTEND_URL_VERCEL || 'https://new-work-ecru-two.vercel.app'
+  process.env.FRONTEND_URL_VERCEL || 'https://new-work-ecru-two.vercel.app',
+  'https://seige-bank.vercel.app' // Added new Vercel domain
 ];
 
 // Middleware
