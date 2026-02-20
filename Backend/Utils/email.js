@@ -25,7 +25,7 @@ export const sendLoginAlertEmail = async ({ to, location, device, dateTime }) =>
       to,
       subject: "New Login Detected",
       html: `
-        <p>Hello ${to},</p>
+        <p>Hello ${to.split("@")[0]},</p>
         <p>You have successfully logged in to your account from location:</p>
         <p>
           <strong>Location:</strong> ${location}<br/>

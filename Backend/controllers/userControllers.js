@@ -1,4 +1,3 @@
-
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import axios from "axios";
@@ -149,12 +148,6 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    // =========================
-    // Send login emails asynchronously (do not block response)
-    // =========================
-    sendLoginEmail(user.email).catch((err) =>
-      console.error("sendLoginEmail error:", err)
-    );
     sendLoginAlertEmail({
       to: user.email,
       location: req.ip || "Unknown location",

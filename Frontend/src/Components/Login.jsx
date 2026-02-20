@@ -1,5 +1,5 @@
 // src/Pages/Login.jsx
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import api from "../Utility/Api";
@@ -10,11 +10,21 @@ export default function Login() {
   const [message, setMessage] = useState({ text: "", type: "" });
   const [captchaToken, setCaptchaToken] = useState("");
   const [loading, setLoading] = useState(false);
+  const [captchaError, setCaptchaError] = useState("");
   const widgetRef = useRef(null);
   const navigate = useNavigate();
 
-  // Make sure the site key is loaded
-  console.log("HCaptcha key:", import.meta.env.VITE_SITE_KEY);
+  const siteKey = import.meta.env.VITE_SITE_KEY;
+
+  // Verify site key on component mount
+  useEffect(() => {
+    if (!siteKey) {
+      setCaptchaError("hCaptcha site key is not configured");
+      console.error("❌ hCaptcha site key missing from environment variables");
+    } else {
+      console.log("✅ hCaptcha site key loaded:", siteKey.substring(0, 10) + "...");
+    }
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -87,6 +97,7 @@ export default function Login() {
           <p className="sub-text">Sign in to access your account</p>
 
           {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
+          {captchaError && <div className="message error">{captchaError}</div>}
 
           <form onSubmit={handleSubmit}>
             <div className="input-group">
@@ -112,18 +123,27 @@ export default function Login() {
             </div>
 
             <div className="captcha-box">
-              <HCaptcha
-                sitekey={import.meta.env.VITE_SITE_KEY}
-                onVerify={(token) => setCaptchaToken(token)}
-                ref={widgetRef}
-                size="normal"
-                theme="light"
-                endpoint="https://hcaptcha.com"
-                imageEndpoint="https://img.hcaptcha.com"
-                reportapi="https://hcaptcha.com/api"
-                assethost="https://newassets.hcaptcha.com"
-                imghost="https://img.hcaptcha.com"
-              />
+              {siteKey ? (
+                <HCaptcha
+                  sitekey={siteKey}
+                  onVerify={(token) => {
+                    setCaptchaToken(token);
+                    setCaptchaError("");
+                  }}
+                  onExpire={() => setCaptchaToken("")}
+                  onError={(error) => {
+                    console.error("hCaptcha error:", error);
+                    setCaptchaError("hCaptcha verification failed. Please try again.");
+                  }}
+                  ref={widgetRef}
+                  size="normal"
+                  theme="light"
+                />
+              ) : (
+                <div style={{ color: "red", padding: "10px" }}>
+                  ❌ hCaptcha not configured. Check .env file for VITE_SITE_KEY.
+                </div>
+              )}
             </div>
 
             <button type="submit" className="login-btn" disabled={loading}>
