@@ -119,20 +119,19 @@ export const loginUser = async (req, res) => {
     // =========================
     // Verify hCaptcha
     // =========================
-    const captchaResponse = await axios.post(
-      "https://hcaptcha.com/siteverify",
-      qs.stringify({
-        secret: process.env.HCAPTCHA_SECRET_KEY,
-        response: captchaToken,
-        remoteip: req.ip,
-      }),
-      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-    );
+   const captchaResponse = await axios.post(
+  "https://hcaptcha.com/siteverify",
+  qs.stringify({
+    secret: process.env.HCAPTCHA_SECRET_KEY,
+    response: captchaToken,
+    remoteip: req.ip,
+  }),
+  { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+);
 
-    if (!captchaResponse.data.success) {
-      console.log("hCaptcha failed:", captchaResponse.data);
-      return res.status(400).json({ error: "Captcha verification failed" });
-    }
+if (!captchaResponse.data.success) {
+  return res.status(400).json({ error: "Captcha verification failed" });
+}
 
     // =========================
     // Check user in database
@@ -148,6 +147,8 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
+  
+    
     sendLoginAlertEmail({
       to: user.email,
       location: req.ip || "Unknown location",

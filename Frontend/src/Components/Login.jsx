@@ -1,5 +1,5 @@
 // src/Pages/Login.jsx
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import api from "../Utility/Api";
@@ -14,17 +14,8 @@ export default function Login() {
   const widgetRef = useRef(null);
   const navigate = useNavigate();
 
-  const siteKey = import.meta.env.VITE_SITE_KEY;
-
-  // Verify site key on component mount
-  useEffect(() => {
-    if (!siteKey) {
-      setCaptchaError("hCaptcha site key is not configured");
-      console.error("❌ hCaptcha site key missing from environment variables");
-    } else {
-      console.log("✅ hCaptcha site key loaded:", siteKey.substring(0, 10) + "...");
-    }
-  }, []);
+  const siteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
+  console.log("HCaptcha key:", siteKey);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -45,7 +36,7 @@ export default function Login() {
       const res = await api.post("/auth/login", {
         email: form.email,
         password: form.password,
-        captchaToken, // Send the HCaptcha token to backend
+        captchaToken,
       });
 
       localStorage.setItem("user", JSON.stringify(res.data.user));
@@ -55,7 +46,6 @@ export default function Login() {
 
       setForm({ email: "", password: "" });
       setCaptchaToken("");
-
       if (widgetRef.current) widgetRef.current.resetCaptcha();
     } catch (err) {
       console.error(err.response?.data);
@@ -63,7 +53,6 @@ export default function Login() {
         text: err.response?.data?.error || "Login failed",
         type: "error",
       });
-
       setCaptchaToken("");
       if (widgetRef.current) widgetRef.current.resetCaptcha();
     } finally {
@@ -131,17 +120,16 @@ export default function Login() {
                     setCaptchaError("");
                   }}
                   onExpire={() => setCaptchaToken("")}
-                  onError={(error) => {
-                    console.error("hCaptcha error:", error);
-                    setCaptchaError("hCaptcha verification failed. Please try again.");
-                  }}
+                  onError={() => setCaptchaError("hCaptcha verification failed")}
                   ref={widgetRef}
                   size="normal"
                   theme="light"
+                  loading="lazy"
+                  onLoad={() => console.log("HCaptcha loaded")}
                 />
               ) : (
                 <div style={{ color: "red", padding: "10px" }}>
-                  ❌ hCaptcha not configured. Check .env file for VITE_SITE_KEY.
+                  ❌ hCaptcha site key missing in .env
                 </div>
               )}
             </div>
