@@ -16,47 +16,25 @@ const transporter = nodemailer.createTransport({
 });
 
 /* =========================
-   LOGIN / WELCOME EMAIL
-========================= */
-export const sendLoginEmail = async (toEmail) => {
-  try {
-    await transporter.sendMail({
-      from: `"EastPal Bank Team" <${process.env.EMAIL_USER}>`,
-      to: toEmail,
-      subject: "Welcome to EastPal Bank 🎉",
-      html: `
-        <h2>Welcome to EastPal Bank 👋</h2>
-        <p>You have successfully logged in to your account.</p>
-        <p>Thank you for choosing EastPal Bank for your banking needs.</p>
-        <p>Best regards,<br/><strong>EastPal Bank Team</strong></p>
-      `,
-    });
-    console.log(`Login email sent to ${toEmail}`);
-  } catch (err) {
-    console.error("Error sending login email:", err);
-  }
-};
-
-/* =========================
    LOGIN ALERT EMAIL
 ========================= */
 export const sendLoginAlertEmail = async ({ to, location, device, dateTime }) => {
   try {
     await transporter.sendMail({
-      from: `"EastPal Bank Security Team" <${process.env.EMAIL_USER}>`,
+      from: `"Seige Bank Security Team" <${process.env.EMAIL_USER}>`,
       to,
       subject: "New Login Detected",
       html: `
-        <p>Hello,</p>
-        <p>We noticed a new login to your account from a new location:</p>
+        <p>Hello ${to},</p>
+        <p>You have successfully logged in to your account from location:</p>
         <p>
           <strong>Location:</strong> ${location}<br/>
           <strong>Device:</strong> ${device}<br/>
           <strong>Date & Time:</strong> ${dateTime}
         </p>
         <p>If this was you, no action is needed.</p>
-        <p>If you do not recognize this activity, contact us immediately.</p>
-        <p>Best regards,<br/><strong>EastPal Bank Security Team</strong></p>
+        <p>If you do not recognize this activity, please contact us immediately.</p>
+        <p>Best regards,<br/><strong>Seige Bank Security Team</strong></p>
       `,
     });
     console.log(`Login alert email sent to ${to}`);

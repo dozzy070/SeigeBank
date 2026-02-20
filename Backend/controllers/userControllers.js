@@ -7,7 +7,6 @@ import { validationResult } from "express-validator";
 import pool from "../config/db.js";
 import {
   sendRegisterEmail,
-  sendLoginEmail,
   sendLoginAlertEmail,
   sendResetEmail,
 } from "../Utils/email.js";
