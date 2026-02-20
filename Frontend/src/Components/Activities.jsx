@@ -5,20 +5,29 @@ import './styles/Activities.css';
 export default function Activities({ userId, accountId }) {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchActivities();
+    if (userId) {
+      fetchActivities();
+    }
   }, [userId]);
 
   const fetchActivities = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await api.get(`/user/activities?userId=${userId}&limit=10`);
 
       if (response.data.activities) {
         setActivities(response.data.activities);
+      } else {
+        setActivities([]);
       }
     } catch (err) {
       console.error('Failed to fetch activities:', err);
+      setError('Failed to load activities');
+      setActivities([]);
     } finally {
       setLoading(false);
     }

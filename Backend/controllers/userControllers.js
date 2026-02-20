@@ -400,6 +400,13 @@ export const getUserActivities = async (req, res) => {
       return res.status(400).json({ error: "User ID is required" });
     }
 
+    // Validate that user exists
+    const userCheck = await pool.query("SELECT id FROM users WHERE id = $1", [userId]);
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Get activities for the user
     const result = await pool.query(
       `SELECT id, activity_type, description, amount, balance_after, timestamp, status
        FROM activities
@@ -409,6 +416,7 @@ export const getUserActivities = async (req, res) => {
       [userId, parseInt(limit), parseInt(offset)]
     );
 
+    // Get total count
     const countResult = await pool.query(
       "SELECT COUNT(*) FROM activities WHERE user_id = $1",
       [userId]
@@ -426,8 +434,8 @@ export const getUserActivities = async (req, res) => {
       offset: parseInt(offset),
     });
   } catch (err) {
-    console.error("Get activities error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("Get activities error:", err.message);
+    res.status(500).json({ error: "Failed to fetch activities", details: err.message });
   }
 };
 

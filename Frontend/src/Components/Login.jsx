@@ -113,13 +113,16 @@ export default function Login() {
 
             <div className="captcha-box">
               <HCaptcha
-                sitekey={import.meta.env.VITE_SITE_KEY} // your HCaptcha site key
+                sitekey={import.meta.env.VITE_SITE_KEY}
                 onVerify={(token) => setCaptchaToken(token)}
                 ref={widgetRef}
                 size="normal"
                 theme="light"
-                loading="lazy"
-                onLoad={() => console.log("HCaptcha loaded")}
+                endpoint="https://hcaptcha.com"
+                imageEndpoint="https://img.hcaptcha.com"
+                reportapi="https://hcaptcha.com/api"
+                assethost="https://newassets.hcaptcha.com"
+                imghost="https://img.hcaptcha.com"
               />
             </div>
 
