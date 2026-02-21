@@ -5,7 +5,6 @@ import authRoutes from "./routes/authRoutes.js";
 import sendemailRoutes from "./routes/emailRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 
-
 const app = express();
 
 // CORS Configuration using environment variables

@@ -1,21 +1,14 @@
 // src/Pages/Login.jsx
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
 import api from "../Utility/Api";
 import "../Components/Login.css";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [message, setMessage] = useState({ text: "", type: "" });
-  const [captchaToken, setCaptchaToken] = useState("");
   const [loading, setLoading] = useState(false);
-  const [captchaError, setCaptchaError] = useState("");
-  const widgetRef = useRef(null);
   const navigate = useNavigate();
-
-  const siteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
-  console.log("HCaptcha key:", siteKey);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -25,18 +18,12 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!captchaToken) {
-      setMessage({ text: "Please complete the CAPTCHA", type: "error" });
-      return;
-    }
-
     setLoading(true);
 
     try {
       const res = await api.post("/auth/login", {
         email: form.email,
         password: form.password,
-        captchaToken,
       });
 
       localStorage.setItem("user", JSON.stringify(res.data.user));
@@ -45,16 +32,12 @@ export default function Login() {
       setTimeout(() => navigate("/dashboard"), 800);
 
       setForm({ email: "", password: "" });
-      setCaptchaToken("");
-      if (widgetRef.current) widgetRef.current.resetCaptcha();
     } catch (err) {
       console.error(err.response?.data);
       setMessage({
         text: err.response?.data?.error || "Login failed",
         type: "error",
       });
-      setCaptchaToken("");
-      if (widgetRef.current) widgetRef.current.resetCaptcha();
     } finally {
       setLoading(false);
     }
@@ -86,7 +69,6 @@ export default function Login() {
           <p className="sub-text">Sign in to access your account</p>
 
           {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
-          {captchaError && <div className="message error">{captchaError}</div>}
 
           <form onSubmit={handleSubmit}>
             <div className="input-group">
@@ -109,29 +91,6 @@ export default function Login() {
                 onChange={handleChange}
                 required
               />
-            </div>
-
-            <div className="captcha-box">
-              {siteKey ? (
-                <HCaptcha
-                  sitekey={siteKey}
-                  onVerify={(token) => {
-                    setCaptchaToken(token);
-                    setCaptchaError("");
-                  }}
-                  onExpire={() => setCaptchaToken("")}
-                  onError={() => setCaptchaError("hCaptcha verification failed")}
-                  ref={widgetRef}
-                  size="normal"
-                  theme="light"
-                  loading="lazy"
-                  onLoad={() => console.log("HCaptcha loaded")}
-                />
-              ) : (
-                <div style={{ color: "red", padding: "10px" }}>
-                  ❌ hCaptcha site key missing in .env
-                </div>
-              )}
             </div>
 
             <button type="submit" className="login-btn" disabled={loading}>
