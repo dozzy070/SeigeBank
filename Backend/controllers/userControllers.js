@@ -217,6 +217,204 @@ export const resetPassword = async (req, res) => {
   }
 };
 
+
 /* =========================
-   (Everything below remains unchanged)
+   CREATE BANK ACCOUNT
 ========================= */
+export const createBankAccount = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const { userId, accountType = "Savings" } = req.body;
+
+    // Check if user exists
+    const userResult = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Generate unique 10-digit account number
+    const generateAccountNumber = () => {
+      return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+    };
+
+    let accountNumber = generateAccountNumber();
+
+    // Ensure uniqueness
+    let exists = true;
+    while (exists) {
+      const check = await pool.query(
+        "SELECT * FROM bank_accounts WHERE account_number = $1",
+        [accountNumber]
+      );
+      if (check.rows.length === 0) exists = false;
+      else accountNumber = generateAccountNumber();
+    }
+
+    // Insert bank account
+    const insertQuery = `
+      INSERT INTO bank_accounts (user_id, account_number, account_type, balance)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, account_number, account_type, balance
+    `;
+    const result = await pool.query(insertQuery, [userId, accountNumber, accountType, 0]);
+
+    res.status(201).json({
+      message: "Bank account created successfully",
+      account: result.rows[0],
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error creating bank account" });
+  }
+};
+
+
+
+// controllers/ADD TRANSACTION
+export const addTransaction = async (req, res) => {
+  try {
+    const { userId, type, amount, description } = req.body;
+
+    if (!userId || !type || !amount) {
+      return res.status(400).json({ error: "userId, type, and amount are required" });
+    }
+
+    // Get user's primary bank account (for simplicity, first account)
+    const accountResult = await pool.query(
+      "SELECT * FROM bank_accounts WHERE user_id = $1 ORDER BY id LIMIT 1",
+      [userId]
+    );
+
+    if (accountResult.rows.length === 0) {
+      return res.status(404).json({ error: "Bank account not found for user" });
+    }
+
+    const account = accountResult.rows[0];
+    let newBalance = account.balance;
+
+    if (type === "deposit") newBalance += amount;
+    else if (type === "withdraw") {
+      if (amount > account.balance) return res.status(400).json({ error: "Insufficient balance" });
+      newBalance -= amount;
+    } else {
+      return res.status(400).json({ error: "Invalid transaction type" });
+    }
+
+    // Update account balance
+    await pool.query(
+      "UPDATE bank_accounts SET balance = $1 WHERE id = $2",
+      [newBalance, account.id]
+    );
+
+    // Record transaction
+    const insertTransaction = `
+      INSERT INTO transactions (user_id, account_id, type, amount, description)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, type, amount, description, created_at
+    `;
+    const transactionResult = await pool.query(insertTransaction, [
+      userId,
+      account.id,
+      type,
+      amount,
+      description || null,
+    ]);
+
+    res.status(201).json({
+      message: "Transaction successful",
+      transaction: transactionResult.rows[0],
+      newBalance,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error processing transaction" });
+  }
+};
+
+// controllers/GET USER ACCOUNT
+export const getUserAccount = async (req, res) => {
+  try {
+    const { userId } = req.query; // ✅ FIXED
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const result = await pool.query(
+      "SELECT * FROM bank_accounts WHERE user_id = $1",
+      [userId]
+    );
+
+    res.status(200).json({ account: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error fetching account" });
+  }
+};
+
+/* =========================
+   GET USER ACTIVITIES
+========================= */
+export const getUserActivities = async (req, res) => {
+  try {
+    const { userId, limit = 10 } = req.query; // ✅ FIXED
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const result = await pool.query(
+      `
+      SELECT t.*, b.account_number
+      FROM transactions t
+      JOIN bank_accounts b ON t.account_id = b.id
+      WHERE b.user_id = $1
+      ORDER BY t.created_at DESC
+      LIMIT $2
+      `,
+      [userId, limit]
+    );
+
+    res.status(200).json({ activities: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error fetching activities" });
+  }
+};
+
+/* =========================
+   GET USER PROFILE
+========================= */
+export const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.params.userId; // route: /user/:userId/profile
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const result = await pool.query(
+      `
+      SELECT id, full_name, email, phone, created_at
+      FROM users
+      WHERE id = $1
+      `,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({
+      user: result.rows[0],
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error fetching user profile" });
+  }
+};
