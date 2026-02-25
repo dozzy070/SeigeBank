@@ -1,15 +1,7 @@
-
 import express from "express";
 import { body } from "express-validator";
-import loginAttempts from "../Middleware/limit.js"; // ✅ Import correctly
-
-import {
-  registerUser,
-  loginUser,
-  forgotPassword,
-  resetPassword,
-  createBankAccount,
-} from "../controllers/userControllers.js";
+import loginAttempts from "../Middleware/limit.js"; // Rate limiter
+import { registerUser, loginUser, forgotPassword, resetPassword } from "../controllers/userControllers.js";
 
 const router = express.Router();
 
@@ -33,7 +25,7 @@ router.post(
 ========================= */
 router.post(
   "/login",
-  loginAttempts, // ✅ Rate limiter FIRST
+  loginAttempts, // ✅ Rate limiter applied
   loginUser
 );
 
@@ -46,17 +38,5 @@ router.post("/forgot-password", forgotPassword);
    RESET PASSWORD
 ========================= */
 router.post("/reset-password", resetPassword);
-
-/* =========================
-   CREATE BANK ACCOUNT
-========================= */
-router.post(
-  "/create-account",
-  [
-    body("userId").notEmpty().withMessage("User ID is required"),
-    body("accountType").optional().isString().withMessage("Account type must be a string"),
-  ],
-  createBankAccount
-);
 
 export default router;
